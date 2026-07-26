@@ -1,0 +1,33 @@
+# PlanFact — site & local artifacts
+__pycache__/
+*.pyc
+.Python
+.env
+.venv/
+venv/
+
+# Source workbooks (not for public Pages)
+Модель План-Факт*.xlsx
+Распределение по командам.xlsx
+~$*
+
+# Heavy per-team exports (HTML site is the public artifact)
+teams/
+*.xlsx
+
+# Local caches / audits
+**/jira_audit_cache.json
+**/audit_tasks.json
+build_log.txt
+
+# Keep published site
+!index.html
+!docs/
+!docs/**
+!.nojekyll
+!site_data.json
+!.ai/
+!.ai/**
+!*.py
+!README.md
+!.gitignore

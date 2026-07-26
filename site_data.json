@@ -1,0 +1,202 @@
+{
+  "generated": "2026-07-26T20:48:26",
+  "periods": [
+    "2026.03.30",
+    "2026.04.06",
+    "2026.04.20",
+    "2026.04.27",
+    "2026.05.04",
+    "2026.05.12",
+    "2026.05.18",
+    "2026.05.25",
+    "2026.06.01",
+    "2026.06.08",
+    "2026.06.15",
+    "2026.06.22",
+    "2026.06.29",
+    "2026.07.13",
+    "2026.07.24"
+  ],
+  "teams": [
+    {
+      "name": "Резерв",
+      "slug": "резерв",
+      "kpi": {
+        "people": 6,
+        "cases": 85,
+        "tasks": 675,
+        "hours": 7661.1,
+        "unique_keys": 106,
+        "top_fio": "Барбышева Елена"
+      }
+    },
+    {
+      "name": "РНД",
+      "slug": "рнд",
+      "kpi": {
+        "people": 3,
+        "cases": 39,
+        "tasks": 201,
+        "hours": 7317.6,
+        "unique_keys": 42,
+        "top_fio": "Закиров Артур"
+      }
+    },
+    {
+      "name": "Согласие",
+      "slug": "согласие",
+      "kpi": {
+        "people": 13,
+        "cases": 122,
+        "tasks": 899,
+        "hours": 4792.2,
+        "unique_keys": 169,
+        "top_fio": "Базуева Ирина"
+      }
+    },
+    {
+      "name": "QA",
+      "slug": "qa",
+      "kpi": {
+        "people": 4,
+        "cases": 54,
+        "tasks": 614,
+        "hours": 4699.9,
+        "unique_keys": 89,
+        "top_fio": "Башилов Иван"
+      }
+    },
+    {
+      "name": "РГС VFOS",
+      "slug": "ргс-vfos",
+      "kpi": {
+        "people": 6,
+        "cases": 42,
+        "tasks": 330,
+        "hours": 2954.9,
+        "unique_keys": 50,
+        "top_fio": "Кукарин Дмитрий"
+      }
+    },
+    {
+      "name": "СБС/ВСК",
+      "slug": "сбс-вск",
+      "kpi": {
+        "people": 5,
+        "cases": 36,
+        "tasks": 221,
+        "hours": 1598.1,
+        "unique_keys": 48,
+        "top_fio": "Воронов Иван"
+      }
+    },
+    {
+      "name": "Отпуск БС",
+      "slug": "отпуск-бс",
+      "kpi": {
+        "people": 3,
+        "cases": 23,
+        "tasks": 73,
+        "hours": 1538.2,
+        "unique_keys": 16,
+        "top_fio": "Гладышева Мария"
+      }
+    },
+    {
+      "name": "РГС Ипотека",
+      "slug": "ргс-ипотека",
+      "kpi": {
+        "people": 7,
+        "cases": 12,
+        "tasks": 143,
+        "hours": 977.8,
+        "unique_keys": 17,
+        "top_fio": "Аравопуло Евстафий"
+      }
+    },
+    {
+      "name": "MGMT",
+      "slug": "mgmt",
+      "kpi": {
+        "people": 9,
+        "cases": 29,
+        "tasks": 60,
+        "hours": 802.5,
+        "unique_keys": 16,
+        "top_fio": "Боржанский Арсений"
+      }
+    },
+    {
+      "name": "Дизайнер",
+      "slug": "дизайнер",
+      "kpi": {
+        "people": 1,
+        "cases": 15,
+        "tasks": 27,
+        "hours": 524.5,
+        "unique_keys": 6,
+        "top_fio": "Широглазова Алена"
+      }
+    },
+    {
+      "name": "Аутстафф",
+      "slug": "аутстафф",
+      "kpi": {
+        "people": 6,
+        "cases": 5,
+        "tasks": 18,
+        "hours": 510.0,
+        "unique_keys": 6,
+        "top_fio": "Волков Константин"
+      }
+    },
+    {
+      "name": "Декрет",
+      "slug": "декрет",
+      "kpi": {
+        "people": 7,
+        "cases": 11,
+        "tasks": 27,
+        "hours": 309.5,
+        "unique_keys": 9,
+        "top_fio": "Рындина Арина"
+      }
+    },
+    {
+      "name": "TS",
+      "slug": "ts",
+      "kpi": {
+        "people": 15,
+        "cases": 75,
+        "tasks": 193,
+        "hours": 268.8,
+        "unique_keys": 29,
+        "top_fio": "Астафьева Ольга"
+      }
+    },
+    {
+      "name": "Ипотека",
+      "slug": "ипотека",
+      "kpi": {
+        "people": 2,
+        "cases": 7,
+        "tasks": 48,
+        "hours": 123.8,
+        "unique_keys": 8,
+        "top_fio": "Белоусов Евгений"
+      }
+    },
+    {
+      "name": "Агрегатор",
+      "slug": "агрегатор",
+      "kpi": {
+        "people": 1,
+        "cases": 0,
+        "tasks": 0,
+        "hours": 0.0,
+        "unique_keys": 0,
+        "top_fio": ""
+      }
+    }
+  ]
+}
