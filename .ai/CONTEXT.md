@@ -1,16 +1,15 @@
 project: PlanFact
-context_version: 4
-updated: 2026-07-26
+context_version: 5
+updated: 2026-08-21
 
 # PlanFact
 
-Цель: единый публичный HTML по превышениям План/Факт (Производство) в разбивке по командам.
-Корень: D:\projects\PlanFact.
+Цель: единый публичный HTML по превышениям План/Факт (Производство) по командам.
+Корень: `D:\projects\PlanFact`.
 
-Статус: единая страница index.html в стиле monthly-project-status; 15 команд; GitHub Pages.
+Статус: 18 срезов (2026.03.30 → **2026.08.17**); тема Jira backlog (Virtu portal).
 Live: https://puholet-sketch.github.io/PlanFact/
 
-Ключевое: uild_all_teams.py → teams/* (xlsx) + index.html; тема 
-eport_theme.py (dark deck).
+Ключевые файлы: `build_all_teams.py`, `report_theme.py`, `index.html`, `site_data.json`.
 
-Следующий шаг: новый срез → python build_all_teams.py и push.
+Следующий шаг: новый срез → `python build_all_teams.py` и push.

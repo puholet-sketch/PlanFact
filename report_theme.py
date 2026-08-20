@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Monthly-status dark deck theme for PlanFact unified site."""
+"""Jira-like light theme for PlanFact unified site (Virtu portal look)."""
 
 from __future__ import annotations
 
@@ -77,91 +77,135 @@ def render_unified_site(meta: dict, teams: list[dict]) -> str:
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     :root {{
-      --bg: #0f1419; --surface: #1a2332; --surface2: #243044;
-      --text: #e8edf4; --muted: #8b9cb3; --accent: #3b82f6;
-      --accent2: #10b981; --accent3: #f59e0b; --accent4: #8b5cf6;
-      --danger: #ef4444; --border: #2d3a4f;
+      --jira-navy: #205081;
+      --jira-blue: #0052cc;
+      --jira-blue-soft: #deebff;
+      --bg: #f4f5f7;
+      --surface: #ffffff;
+      --surface2: #fafbfc;
+      --text: #172b4d;
+      --muted: #6b778c;
+      --border: #dfe1e6;
+      --danger: #de350b;
+      --ok: #00875a;
+      --amber: #ff8b00;
+      --active: #14892c;
     }}
     * {{ box-sizing: border-box; margin: 0; padding: 0; }}
     html {{ scroll-behavior: smooth; }}
-    body {{ font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.55; }}
-    a {{ color: var(--accent); text-decoration: none; }}
+    body {{
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg); color: var(--text); line-height: 1.5;
+    }}
+    a {{ color: var(--jira-blue); text-decoration: none; }}
     a:hover {{ text-decoration: underline; }}
-    .deck {{ max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }}
-    .slide {{ background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2.5rem; margin-bottom: 2rem; }}
-    .slide-header {{ display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; gap: 1rem; }}
-    .slide-num {{ font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }}
-    h2 {{ font-size: 1.5rem; font-weight: 600; margin-bottom: 0.35rem; }}
-    .subtitle {{ color: var(--muted); font-size: 0.95rem; line-height: 1.45; }}
-    .cover {{ text-align: center; padding: 4rem 2rem; }}
-    .cover h1 {{ font-size: clamp(1.6rem, 4vw, 2.2rem); margin-bottom: 0.5rem; }}
-    .kpi-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin: 1.25rem 0; }}
-    .kpi {{ background: var(--surface2); border-radius: 12px; padding: 1.1rem; border-left: 4px solid var(--accent); }}
-    .kpi.green {{ border-left-color: var(--accent2); }}
-    .kpi.amber {{ border-left-color: var(--accent3); }}
+    .topbar {{
+      background: var(--jira-navy); color: #fff; padding: 0.7rem 1.25rem;
+      display: flex; align-items: center; gap: 1rem; position: sticky; top: 0; z-index: 50;
+    }}
+    .topbar .brand {{ font-weight: 700; letter-spacing: 0.04em; color: #fff; text-decoration: none; }}
+    .topbar .meta {{ color: rgba(255,255,255,0.78); font-size: 0.85rem; }}
+    .deck {{ max-width: 1180px; margin: 0 auto; padding: 1.25rem 1.25rem 3rem; }}
+    .slide {{
+      background: var(--surface); border: 1px solid var(--border); border-radius: 3px;
+      padding: 1.35rem 1.5rem 1.5rem; margin-bottom: 1rem;
+      box-shadow: 0 1px 1px rgba(9, 30, 66, 0.08);
+    }}
+    .slide-header {{ display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; gap: 1rem; }}
+    .slide-num {{ font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }}
+    h1, h2 {{ font-weight: 600; color: var(--text); }}
+    h2 {{ font-size: 1.35rem; margin-bottom: 0.25rem; }}
+    .subtitle {{ color: var(--muted); font-size: 0.92rem; }}
+    .cover {{ padding: 1.75rem 1.5rem; }}
+    .cover h1 {{ font-size: clamp(1.45rem, 3vw, 1.85rem); margin: 0.35rem 0 0.5rem; }}
+    .lozenge {{
+      display: inline-block; padding: 0.1rem 0.55rem; border-radius: 3px;
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+      background: #e3fcef; color: var(--active);
+    }}
+    .kpi-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; margin: 1rem 0; }}
+    .kpi {{
+      background: var(--surface2); border: 1px solid var(--border); border-radius: 3px;
+      padding: 0.9rem 1rem; border-left: 4px solid var(--jira-blue);
+    }}
+    .kpi.green {{ border-left-color: var(--ok); }}
+    .kpi.amber {{ border-left-color: var(--amber); }}
     .kpi.red {{ border-left-color: var(--danger); }}
-    .kpi-value {{ font-size: 1.65rem; font-weight: 700; }}
-    .kpi-label {{ font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; }}
-    .chart-box {{ background: var(--surface2); border-radius: 12px; padding: 1.15rem; margin-top: 1rem; }}
-    .chart-title {{ font-size: 0.88rem; font-weight: 600; margin-bottom: 0.75rem; }}
+    .kpi-value {{ font-size: 1.45rem; font-weight: 700; color: var(--text); }}
+    .kpi-label {{ font-size: 0.78rem; color: var(--muted); margin-top: 0.2rem; }}
+    .chart-box {{ background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 1rem; margin-top: 0.85rem; }}
+    .chart-title {{ font-size: 0.85rem; font-weight: 600; margin-bottom: 0.65rem; color: var(--text); }}
     .chart-wrap {{ position: relative; height: 280px; }}
     .chart-wrap.sm {{ height: 220px; }}
-    .section-label {{ font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent2); margin: 1.35rem 0 0.65rem; }}
-    .section-label.blue {{ color: var(--accent); }}
-    .section-label.amber {{ color: var(--accent3); }}
-    table {{ width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 0.5rem; }}
-    th, td {{ padding: 0.55rem 0.7rem; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }}
-    th {{ color: var(--muted); font-weight: 600; font-size: 0.75rem; }}
+    .section-label {{
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+      color: var(--muted); margin: 1.15rem 0 0.5rem;
+    }}
+    .section-label.blue {{ color: var(--jira-blue); }}
+    .section-label.amber {{ color: var(--amber); }}
+    table {{ width: 100%; border-collapse: collapse; font-size: 0.84rem; margin-top: 0.35rem; }}
+    th, td {{ padding: 0.5rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }}
+    th {{ color: var(--muted); font-weight: 600; font-size: 0.72rem; background: #f4f5f7; }}
+    tbody tr:hover {{ background: #f8f9fb; }}
     td.bad, .bad {{ color: var(--danger); font-weight: 700; }}
-    td.ok {{ color: var(--accent2); }}
+    td.ok {{ color: var(--ok); }}
     td.empty {{ color: var(--muted); text-align: center; }}
     .name {{ font-weight: 600; white-space: nowrap; }}
-    .muted {{ color: var(--muted); font-size: 0.82rem; }}
+    .muted {{ color: var(--muted); font-size: 0.8rem; }}
     .ratio {{ font-weight: 700; }}
-    .delta {{ font-size: 0.78rem; }}
-    .nav-bar {{ display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0 0; }}
+    .delta {{ font-size: 0.75rem; }}
+    .issue-key {{ font-weight: 600; color: var(--jira-blue); }}
+    .nav-bar {{ display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.75rem 0 0; }}
     .nav-chip {{
-      display: inline-block; padding: 0.35rem 0.7rem; border-radius: 999px;
-      background: rgba(59,130,246,0.12); color: var(--accent); font-size: 0.78rem; font-weight: 600;
-      border: 1px solid rgba(59,130,246,0.25); text-decoration: none;
+      display: inline-block; padding: 0.28rem 0.65rem; border-radius: 3px;
+      background: var(--jira-blue-soft); color: var(--jira-blue); font-size: 0.76rem; font-weight: 600;
+      border: 1px solid #b3d4ff; text-decoration: none;
     }}
-    .nav-chip:hover {{ background: rgba(59,130,246,0.22); text-decoration: none; }}
+    .nav-chip:hover {{ background: #b3d4ff; text-decoration: none; }}
     .sticky-nav {{
-      position: sticky; top: 0; z-index: 40; background: rgba(15,20,25,0.92);
-      backdrop-filter: blur(10px); border-bottom: 1px solid var(--border);
-      padding: 0.65rem 1.5rem; margin: 0 -1.5rem 1.5rem;
+      position: sticky; top: 48px; z-index: 40; background: rgba(244,245,247,0.96);
+      backdrop-filter: blur(8px); border: 1px solid var(--border); border-radius: 3px;
+      padding: 0.55rem 0.75rem; margin: 0 0 0.85rem;
     }}
     .sticky-nav .nav-bar {{ margin: 0; }}
-    details.tasks {{ margin-top: 1rem; background: var(--surface2); border-radius: 12px; padding: 0.85rem 1rem; }}
-    details.tasks summary {{ cursor: pointer; font-weight: 600; color: var(--accent); }}
-    .fio-block {{ margin-top: 1rem; padding-top: 0.85rem; border-top: 1px solid var(--border); }}
-    .badge {{
-      display: inline-block; margin-left: 0.35rem; padding: 0.1rem 0.5rem; border-radius: 999px;
-      background: rgba(239,68,68,0.15); color: var(--danger); font-size: 0.72rem; font-weight: 600;
+    details.tasks {{
+      margin-top: 0.85rem; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 3px; padding: 0.75rem 0.9rem;
     }}
-    .reasons {{ margin: 0.4rem 0 0.6rem; padding-left: 1.1rem; color: var(--muted); font-size: 0.82rem; }}
-    .two-col {{ display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1rem; }}
+    details.tasks summary {{ cursor: pointer; font-weight: 600; color: var(--jira-blue); }}
+    .fio-block {{ margin-top: 0.85rem; padding-top: 0.75rem; border-top: 1px solid var(--border); }}
+    .badge {{
+      display: inline-block; margin-left: 0.35rem; padding: 0.08rem 0.45rem; border-radius: 3px;
+      background: #ffebe6; color: var(--danger); font-size: 0.7rem; font-weight: 700;
+    }}
+    .reasons {{ margin: 0.35rem 0 0.55rem; padding-left: 1.1rem; color: var(--muted); font-size: 0.8rem; }}
+    .two-col {{ display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.85rem; }}
     @media (max-width: 860px) {{
       .two-col {{ grid-template-columns: 1fr; }}
-      .slide {{ padding: 1.5rem; }}
+      .slide {{ padding: 1rem; }}
       .chart-wrap {{ height: 240px; }}
-      .sticky-nav {{ margin: 0 -1rem 1rem; padding: 0.55rem 1rem; }}
     }}
-    .table-scroll {{ overflow-x: auto; }}
-    footer {{ text-align: center; color: var(--muted); font-size: 0.8rem; padding: 1rem 0 2rem; }}
-    .insight {{ font-size: 0.9rem; color: var(--muted); margin-top: 0.75rem; }}
+    .table-scroll {{ overflow-x: auto; border: 1px solid var(--border); border-radius: 3px; }}
+    .table-scroll table {{ margin: 0; }}
+    footer {{ text-align: center; color: var(--muted); font-size: 0.78rem; padding: 1rem 0 2rem; }}
+    .insight {{ font-size: 0.88rem; color: var(--muted); margin-top: 0.65rem; }}
     .insight strong {{ color: var(--text); }}
   </style>
 </head>
 <body>
-<div class="deck">
+<header class="topbar">
+  <a class="brand" href="#top">VIRTU · PlanFact</a>
+  <span class="meta">Превышения План/Факт · Производство · {esc(_period_span(periods))}</span>
+</header>
+<div class="deck" id="top">
 
   <section class="slide cover">
-    <p class="slide-num">PlanFact · Производство</p>
+    <p class="slide-num">Backlog analytics</p>
     <h1>Превышения План / Факт по командам</h1>
-    <p class="subtitle">Категория «Производство» · {esc(_period_span(periods))}<br>
-    {source_count} срезов · сформировано {esc(generated)}</p>
-    <div class="kpi-grid" style="text-align:left;max-width:900px;margin:2rem auto 0">
+    <p class="subtitle">Категория «Производство» · {source_count} срезов · сформировано {esc(generated)}
+      <span class="lozenge">Active</span>
+    </p>
+    <div class="kpi-grid" style="text-align:left;max-width:960px;margin:1.25rem 0 0">
       <div class="kpi red"><div class="kpi-value">+{_num(total_hours)}</div><div class="kpi-label">суммарное превышение, ч</div></div>
       <div class="kpi amber"><div class="kpi-value">{total_tasks}</div><div class="kpi-label">строк задач с превышением</div></div>
       <div class="kpi"><div class="kpi-value">{total_cases}</div><div class="kpi-label">случаев (ФИО × период)</div></div>
@@ -217,12 +261,12 @@ def render_unified_site(meta: dict, teams: list[dict]) -> str:
 
   {team_slides}
 
-  <footer>Стиль: ежемесячный статус-дайджест · PlanFact · Virtu Systems</footer>
+  <footer>Стиль: Jira backlog (Virtu portal) · PlanFact · https://puholet-sketch.github.io/PlanFact/</footer>
 </div>
 
 <script>
-  Chart.defaults.color = '#8b9cb3';
-  Chart.defaults.borderColor = '#2d3a4f';
+  Chart.defaults.color = '#6b778c';
+  Chart.defaults.borderColor = '#dfe1e6';
   const teamNames = {json.dumps(chart_teams, ensure_ascii=False)};
   const teamHours = {json.dumps(chart_hours)};
   const teamTasks = {json.dumps(chart_tasks)};
@@ -236,16 +280,16 @@ def render_unified_site(meta: dict, teams: list[dict]) -> str:
         {{
           label: 'Часы превышения',
           data: teamHours,
-          backgroundColor: 'rgba(239, 68, 68, 0.75)',
-          borderColor: '#ef4444',
+          backgroundColor: 'rgba(222, 53, 11, 0.72)',
+          borderColor: '#de350b',
           borderWidth: 1,
           yAxisID: 'yH'
         }},
         {{
           label: 'Строк задач',
           data: teamTasks,
-          backgroundColor: 'rgba(59, 130, 246, 0.55)',
-          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(0, 82, 204, 0.55)',
+          borderColor: '#0052cc',
           borderWidth: 1,
           yAxisID: 'yT'
         }}
@@ -276,16 +320,16 @@ def render_unified_site(meta: dict, teams: list[dict]) -> str:
           {{
             label: 'Задач',
             data: c.tasks,
-            backgroundColor: 'rgba(59, 130, 246, 0.7)',
-            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(0, 82, 204, 0.65)',
+            borderColor: '#0052cc',
             borderWidth: 1,
             yAxisID: 'yTasks'
           }},
           {{
             label: 'Часы',
             data: c.hours,
-            backgroundColor: 'rgba(245, 158, 11, 0.7)',
-            borderColor: '#f59e0b',
+            backgroundColor: 'rgba(255, 139, 0, 0.7)',
+            borderColor: '#ff8b00',
             borderWidth: 1,
             yAxisID: 'yHours'
           }}
@@ -391,7 +435,7 @@ def _render_team_slide(slide_num: int, team: dict) -> str:
             rows_html.append(
                 "<tr>"
                 f"<td>{esc(row['period'])}</td>"
-                f"<td><a href='{link}' target='_blank' rel='noopener'>{esc(key)}</a></td>"
+                f"<td><a class='issue-key' href='{link}' target='_blank' rel='noopener'>{esc(key)}</a></td>"
                 f"<td>{esc(row['work_type'])}</td>"
                 f"<td>{_num(row['plan'])}</td><td>{_num(row['fact'])}</td>"
                 f"<td class='bad'>+{_num(row['excess'])}</td>"

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-26T20:48:26",
+  "generated": "2026-08-21T00:47:47",
   "periods": [
     "2026.03.30",
     "2026.04.06",
@@ -15,7 +15,10 @@
     "2026.06.22",
     "2026.06.29",
     "2026.07.13",
-    "2026.07.24"
+    "2026.07.24",
+    "2026.07.27",
+    "2026.08.04",
+    "2026.08.17"
   ],
   "teams": [
     {
@@ -23,10 +26,10 @@
       "slug": "резерв",
       "kpi": {
         "people": 6,
-        "cases": 85,
-        "tasks": 675,
-        "hours": 7661.1,
-        "unique_keys": 106,
+        "cases": 101,
+        "tasks": 810,
+        "hours": 10290.2,
+        "unique_keys": 116,
         "top_fio": "Барбышева Елена"
       }
     },
@@ -35,10 +38,10 @@
       "slug": "рнд",
       "kpi": {
         "people": 3,
-        "cases": 39,
-        "tasks": 201,
-        "hours": 7317.6,
-        "unique_keys": 42,
+        "cases": 45,
+        "tasks": 248,
+        "hours": 7824.6,
+        "unique_keys": 44,
         "top_fio": "Закиров Артур"
       }
     },
@@ -47,9 +50,9 @@
       "slug": "согласие",
       "kpi": {
         "people": 13,
-        "cases": 122,
-        "tasks": 899,
-        "hours": 4792.2,
+        "cases": 135,
+        "tasks": 970,
+        "hours": 5517.3,
         "unique_keys": 169,
         "top_fio": "Базуева Ирина"
       }
@@ -59,10 +62,10 @@
       "slug": "qa",
       "kpi": {
         "people": 4,
-        "cases": 54,
-        "tasks": 614,
-        "hours": 4699.9,
-        "unique_keys": 89,
+        "cases": 65,
+        "tasks": 716,
+        "hours": 5082.5,
+        "unique_keys": 91,
         "top_fio": "Башилов Иван"
       }
     },
@@ -71,11 +74,23 @@
       "slug": "ргс-vfos",
       "kpi": {
         "people": 6,
-        "cases": 42,
-        "tasks": 330,
-        "hours": 2954.9,
-        "unique_keys": 50,
+        "cases": 44,
+        "tasks": 342,
+        "hours": 3393.6,
+        "unique_keys": 52,
         "top_fio": "Кукарин Дмитрий"
+      }
+    },
+    {
+      "name": "Дизайнер",
+      "slug": "дизайнер",
+      "kpi": {
+        "people": 1,
+        "cases": 18,
+        "tasks": 34,
+        "hours": 2900.5,
+        "unique_keys": 8,
+        "top_fio": "Широглазова Алена"
       }
     },
     {
@@ -83,11 +98,23 @@
       "slug": "сбс-вск",
       "kpi": {
         "people": 5,
-        "cases": 36,
-        "tasks": 221,
-        "hours": 1598.1,
-        "unique_keys": 48,
+        "cases": 45,
+        "tasks": 297,
+        "hours": 2034.0,
+        "unique_keys": 56,
         "top_fio": "Воронов Иван"
+      }
+    },
+    {
+      "name": "MGMT",
+      "slug": "mgmt",
+      "kpi": {
+        "people": 9,
+        "cases": 32,
+        "tasks": 63,
+        "hours": 1618.5,
+        "unique_keys": 16,
+        "top_fio": "Боржанский Арсений"
       }
     },
     {
@@ -95,10 +122,10 @@
       "slug": "отпуск-бс",
       "kpi": {
         "people": 3,
-        "cases": 23,
-        "tasks": 73,
-        "hours": 1538.2,
-        "unique_keys": 16,
+        "cases": 26,
+        "tasks": 77,
+        "hours": 1579.2,
+        "unique_keys": 17,
         "top_fio": "Гладышева Мария"
       }
     },
@@ -107,35 +134,23 @@
       "slug": "ргс-ипотека",
       "kpi": {
         "people": 7,
-        "cases": 12,
-        "tasks": 143,
-        "hours": 977.8,
-        "unique_keys": 17,
+        "cases": 16,
+        "tasks": 219,
+        "hours": 1286.6,
+        "unique_keys": 78,
         "top_fio": "Аравопуло Евстафий"
       }
     },
     {
-      "name": "MGMT",
-      "slug": "mgmt",
+      "name": "Декрет",
+      "slug": "декрет",
       "kpi": {
-        "people": 9,
-        "cases": 29,
+        "people": 7,
+        "cases": 17,
         "tasks": 60,
-        "hours": 802.5,
-        "unique_keys": 16,
-        "top_fio": "Боржанский Арсений"
-      }
-    },
-    {
-      "name": "Дизайнер",
-      "slug": "дизайнер",
-      "kpi": {
-        "people": 1,
-        "cases": 15,
-        "tasks": 27,
-        "hours": 524.5,
-        "unique_keys": 6,
-        "top_fio": "Широглазова Алена"
+        "hours": 524.3,
+        "unique_keys": 14,
+        "top_fio": "Рындина Арина"
       }
     },
     {
@@ -151,26 +166,14 @@
       }
     },
     {
-      "name": "Декрет",
-      "slug": "декрет",
-      "kpi": {
-        "people": 7,
-        "cases": 11,
-        "tasks": 27,
-        "hours": 309.5,
-        "unique_keys": 9,
-        "top_fio": "Рындина Арина"
-      }
-    },
-    {
       "name": "TS",
       "slug": "ts",
       "kpi": {
         "people": 15,
-        "cases": 75,
-        "tasks": 193,
-        "hours": 268.8,
-        "unique_keys": 29,
+        "cases": 89,
+        "tasks": 242,
+        "hours": 301.8,
+        "unique_keys": 33,
         "top_fio": "Астафьева Ольга"
       }
     },

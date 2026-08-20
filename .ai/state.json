@@ -1,33 +1,28 @@
 {
-  "context_version": 4,
-  "timestamp": "2026-07-26T20:49:30+03:00",
-  "context_hash": "9e804dc5736e1afe",
+  "context_version": 5,
+  "timestamp": "2026-08-21T00:51:04+03:00",
+  "context_hash": "336673393dab04f5",
   "active_files": [
     "build_all_teams.py",
     "build_exceed_report.py",
     "report_theme.py",
     "team_mapping.py",
-    "jira_audit_rules.py",
-    "apply_jira_audit.py",
     "README.md",
     "index.html"
   ],
   "active_file_hashes": {
     "build_all_teams.py": "e60154340a442246",
     "build_exceed_report.py": "7fd7ef7dadb84918",
-    "report_theme.py": "7203489f24d9d108",
+    "report_theme.py": "5b3838c084a13497",
     "team_mapping.py": "75373ab26fa17f4d",
-    "jira_audit_rules.py": "b063a5710624fa20",
-    "apply_jira_audit.py": "7f656cf8d168be6c",
     "README.md": "9834d1cffd440cf7",
-    "index.html": "4d01644ad2a06d9e"
+    "index.html": "94a0fa7a9c4638c9"
   },
   "decisions": [
-    "Unified single-page HTML by teams",
-    "Visual style = monthly-project-status dark deck",
-    "Publish via GitHub Pages root index.html",
-    "Source xlsx / teams exports gitignored",
-    "Repo https://github.com/puholet-sketch/PlanFact Pages live"
+    "Source of truth D:\\\\projects\\\\PlanFact",
+    "Latest slices include 2026.07.27, 2026.08.04, 2026.08.17",
+    "Public theme: Jira backlog light (Virtu portal)",
+    "Publish GitHub Pages root index.html"
   ],
   "blockers": [],
   "last_error": null,
