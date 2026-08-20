@@ -74,7 +74,7 @@ def render_unified_site(meta: dict, teams: list[dict]) -> str:
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PlanFact — превышения по командам</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="assets/chart.umd.min.js"></script>
   <style>
     :root {{
       --jira-navy: #205081;
@@ -265,6 +265,11 @@ def render_unified_site(meta: dict, teams: list[dict]) -> str:
 </div>
 
 <script>
+  if (typeof Chart === 'undefined') {
+    document.querySelectorAll('.chart-wrap').forEach((el) => {
+      el.innerHTML = '<p class="muted" style="padding:1rem 0">График не загрузился (Chart.js). Обновите страницу или проверьте, что открыт сайт с папкой <code>assets/</code>.</p>';
+    });
+  } else {
   Chart.defaults.color = '#6b778c';
   Chart.defaults.borderColor = '#dfe1e6';
   const teamNames = {json.dumps(chart_teams, ensure_ascii=False)};
@@ -358,6 +363,7 @@ def render_unified_site(meta: dict, teams: list[dict]) -> str:
       }}
     }});
   }});
+  }}
 </script>
 </body>
 </html>

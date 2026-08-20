@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PlanFact — превышения по командам</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="assets/chart.umd.min.js"></script>
   <style>
     :root {
       --jira-navy: #205081;
@@ -1735,6 +1735,11 @@
 </div>
 
 <script>
+  if (typeof Chart === 'undefined') {
+    document.querySelectorAll('.chart-wrap').forEach((el) => {
+      el.innerHTML = '<p class="muted" style="padding:1rem 0">График не загрузился (Chart.js). Обновите страницу.</p>';
+    });
+  } else {
   Chart.defaults.color = '#6b778c';
   Chart.defaults.borderColor = '#dfe1e6';
   const teamNames = ["Резерв", "РНД", "Согласие", "QA", "РГС VFOS", "Дизайнер", "СБС/ВСК", "MGMT", "Отпуск БС", "РГС Ипотека", "Декрет", "Аутстафф", "TS", "Ипотека", "Агрегатор"];
@@ -1828,6 +1833,7 @@
       }
     });
   });
+  }
 </script>
 </body>
 </html>

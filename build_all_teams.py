@@ -50,6 +50,14 @@ def write_site(teams: list[dict], periods: list[str], source_count: int) -> str:
     with open(index_path, "w", encoding="utf-8") as handle:
         handle.write(html)
     shutil.copyfile(index_path, os.path.join(docs_dir, "index.html"))
+    assets_src = os.path.join(SITE_ROOT, "assets")
+    assets_dst = os.path.join(docs_dir, "assets")
+    if os.path.isdir(assets_src):
+        os.makedirs(assets_dst, exist_ok=True)
+        for name in os.listdir(assets_src):
+            src = os.path.join(assets_src, name)
+            if os.path.isfile(src):
+                shutil.copy2(src, os.path.join(assets_dst, name))
     nojekyll = os.path.join(SITE_ROOT, ".nojekyll")
     if not os.path.exists(nojekyll):
         open(nojekyll, "w", encoding="utf-8").close()
