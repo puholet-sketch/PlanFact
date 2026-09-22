@@ -1,7 +1,7 @@
 {
-  "context_version": 5,
-  "timestamp": "2026-08-21T00:51:04+03:00",
-  "context_hash": "336673393dab04f5",
+  "context_version": 6,
+  "timestamp": "2026-09-22T21:58:08+03:00",
+  "context_hash": "e96a277eb6dd1b31",
   "active_files": [
     "build_all_teams.py",
     "build_exceed_report.py",
@@ -11,18 +11,19 @@
     "index.html"
   ],
   "active_file_hashes": {
-    "build_all_teams.py": "e60154340a442246",
-    "build_exceed_report.py": "7fd7ef7dadb84918",
-    "report_theme.py": "5b3838c084a13497",
+    "build_all_teams.py": "fb4b8d58998b4345",
+    "build_exceed_report.py": "6ed88e3fccdea092",
+    "report_theme.py": "756bbd5bcc3a4e25",
     "team_mapping.py": "75373ab26fa17f4d",
     "README.md": "9834d1cffd440cf7",
-    "index.html": "94a0fa7a9c4638c9"
+    "index.html": "7e16042fe02fc55b"
   },
   "decisions": [
-    "Source of truth D:\\\\projects\\\\PlanFact",
-    "Latest slices include 2026.07.27, 2026.08.04, 2026.08.17",
-    "Public theme: Jira backlog light (Virtu portal)",
-    "Publish GitHub Pages root index.html"
+    "20 slices through 2026.09.14",
+    "Cover movers + last-slice delta",
+    "People table last 8 periods",
+    "ASCII team slugs",
+    "Local Chart.js"
   ],
   "blockers": [],
   "last_error": null,

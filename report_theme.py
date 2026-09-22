@@ -7,6 +7,8 @@ import json
 from datetime import datetime
 from html import escape as esc
 
+PEOPLE_PERIODS_VISIBLE = 8
+
 
 def _num(value, digits: int = 1) -> str:
     try:
@@ -21,6 +23,28 @@ def _period_span(periods: list) -> str:
     if len(periods) == 1:
         return str(periods[0])
     return f"{periods[0]} — {periods[-1]}"
+
+
+def _delta_badge(delta) -> str:
+    if delta is None:
+        return "<span class='delta-badge flat'>н/д</span>"
+    try:
+        value = float(delta)
+    except (TypeError, ValueError):
+        return "<span class='delta-badge flat'>н/д</span>"
+    cls = "up" if value > 0 else ("down" if value < 0 else "flat")
+    sign = "+" if value > 0 else ""
+    return f"<span class='delta-badge {cls}'>{sign}{_num(value)} ч</span>"
+
+
+def _team_last_hours(team: dict) -> tuple[float, float | None]:
+    hours = (team.get("chart") or {}).get("hours") or []
+    if not hours:
+        return 0.0, None
+    last = float(hours[-1] or 0)
+    prev = float(hours[-2] or 0) if len(hours) >= 2 else None
+    delta = round(last - prev, 1) if prev is not None else None
+    return last, delta
 
 
 def render_unified_site(meta: dict, teams: list[dict]) -> str:
@@ -39,16 +63,67 @@ def render_unified_site(meta: dict, teams: list[dict]) -> str:
     total_cases = sum(t["kpi"]["cases"] for t in teams)
     teams_with_excess = sum(1 for t in teams if t["kpi"]["hours"] > 0)
 
+    last_period = periods[-1] if periods else "—"
+    prev_period = periods[-2] if len(periods) >= 2 else None
+    portfolio_last = round(sum(_team_last_hours(t)[0] for t in teams), 1)
+    portfolio_prev = None
+    if prev_period:
+        portfolio_prev = round(
+            sum(float(((t.get("chart") or {}).get("hours") or [0, 0])[-2] or 0) for t in teams),
+            1,
+        )
+    portfolio_delta = (
+        round(portfolio_last - portfolio_prev, 1) if portfolio_prev is not None else None
+    )
+
+    movers = []
+    for team in teams:
+        last_h, delta = _team_last_hours(team)
+        if delta is None:
+            continue
+        movers.append((delta, last_h, team["name"], team["slug"]))
+    risers = sorted(movers, key=lambda x: x[0], reverse=True)[:3]
+    fallers = sorted(movers, key=lambda x: x[0])[:3]
+    movers_html = ""
+    if risers or fallers:
+        rise_items = "".join(
+            f"<li><a href='#team-{esc(slug)}'>{esc(name)}</a> {_delta_badge(d)} "
+            f"<span class='muted'>(срез +{_num(last)} ч)</span></li>"
+            for d, last, name, slug in risers
+            if d > 0
+        )
+        fall_items = "".join(
+            f"<li><a href='#team-{esc(slug)}'>{esc(name)}</a> {_delta_badge(d)} "
+            f"<span class='muted'>(срез +{_num(last)} ч)</span></li>"
+            for d, last, name, slug in fallers
+            if d < 0
+        )
+        movers_html = f"""
+        <div class="movers two-col">
+          <div>
+            <p class="section-label amber">Рост к прошлому срезу</p>
+            <ul class="mover-list">{rise_items or "<li class='muted'>Нет роста</li>"}</ul>
+          </div>
+          <div>
+            <p class="section-label" style="color:var(--ok)">Снижение к прошлому срезу</p>
+            <ul class="mover-list">{fall_items or "<li class='muted'>Нет снижения</li>"}</ul>
+          </div>
+        </div>
+        """
+
     overview_rows = []
-    for i, team in enumerate(teams, start=1):
+    for team in teams:
         kpi = team["kpi"]
+        last_h, delta = _team_last_hours(team)
         overview_rows.append(
-            "<tr>"
+            "<tr data-team-row='" + esc(team["name"]).lower() + "'>"
             f"<td><a href='#team-{esc(team['slug'])}'>{esc(team['name'])}</a></td>"
             f"<td>{kpi['people']}</td>"
             f"<td>{kpi['cases']}</td>"
             f"<td>{kpi['tasks']}</td>"
             f"<td class='bad'>+{_num(kpi['hours'])}</td>"
+            f"<td class='bad'>+{_num(last_h)}</td>"
+            f"<td>{_delta_badge(delta)}</td>"
             f"<td>{esc(kpi.get('top_fio') or '—')}</td>"
             "</tr>"
         )
@@ -66,6 +141,7 @@ def render_unified_site(meta: dict, teams: list[dict]) -> str:
     chart_teams = [t["name"] for t in teams]
     chart_hours = [round(t["kpi"]["hours"], 1) for t in teams]
     chart_tasks = [t["kpi"]["tasks"] for t in teams]
+    chart_last = [round(_team_last_hours(t)[0], 1) for t in teams]
     team_charts = {t["slug"]: t["chart"] for t in teams}
 
     return f"""<!DOCTYPE html>
@@ -102,15 +178,23 @@ def render_unified_site(meta: dict, teams: list[dict]) -> str:
     .topbar {{
       background: var(--jira-navy); color: #fff; padding: 0.7rem 1.25rem;
       display: flex; align-items: center; gap: 1rem; position: sticky; top: 0; z-index: 50;
+      flex-wrap: wrap;
     }}
     .topbar .brand {{ font-weight: 700; letter-spacing: 0.04em; color: #fff; text-decoration: none; }}
-    .topbar .meta {{ color: rgba(255,255,255,0.78); font-size: 0.85rem; }}
+    .topbar .meta {{ color: rgba(255,255,255,0.78); font-size: 0.85rem; flex: 1; min-width: 12rem; }}
+    .topbar input {{
+      font: inherit; font-size: 0.85rem; padding: 0.35rem 0.65rem; border-radius: 3px;
+      border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.12); color: #fff;
+      min-width: 12rem;
+    }}
+    .topbar input::placeholder {{ color: rgba(255,255,255,0.65); }}
     .deck {{ max-width: 1180px; margin: 0 auto; padding: 1.25rem 1.25rem 3rem; }}
     .slide {{
       background: var(--surface); border: 1px solid var(--border); border-radius: 3px;
       padding: 1.35rem 1.5rem 1.5rem; margin-bottom: 1rem;
       box-shadow: 0 1px 1px rgba(9, 30, 66, 0.08);
     }}
+    .slide.is-hidden {{ display: none; }}
     .slide-header {{ display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; gap: 1rem; }}
     .slide-num {{ font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }}
     h1, h2 {{ font-weight: 600; color: var(--text); }}
@@ -146,6 +230,7 @@ def render_unified_site(meta: dict, teams: list[dict]) -> str:
     table {{ width: 100%; border-collapse: collapse; font-size: 0.84rem; margin-top: 0.35rem; }}
     th, td {{ padding: 0.5rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }}
     th {{ color: var(--muted); font-weight: 600; font-size: 0.72rem; background: #f4f5f7; }}
+    th.latest {{ color: var(--jira-blue); background: #deebff; }}
     tbody tr:hover {{ background: #f8f9fb; }}
     td.bad, .bad {{ color: var(--danger); font-weight: 700; }}
     td.ok {{ color: var(--ok); }}
@@ -155,6 +240,15 @@ def render_unified_site(meta: dict, teams: list[dict]) -> str:
     .ratio {{ font-weight: 700; }}
     .delta {{ font-size: 0.75rem; }}
     .issue-key {{ font-weight: 600; color: var(--jira-blue); }}
+    .delta-badge {{
+      display: inline-block; padding: 0.1rem 0.45rem; border-radius: 3px;
+      font-size: 0.75rem; font-weight: 700; white-space: nowrap;
+    }}
+    .delta-badge.up {{ background: #ffebe6; color: var(--danger); }}
+    .delta-badge.down {{ background: #e3fcef; color: var(--ok); }}
+    .delta-badge.flat {{ background: #f4f5f7; color: var(--muted); }}
+    .mover-list {{ list-style: none; margin: 0; padding: 0; }}
+    .mover-list li {{ padding: 0.35rem 0; border-bottom: 1px solid var(--border); font-size: 0.88rem; }}
     .nav-bar {{ display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.75rem 0 0; }}
     .nav-chip {{
       display: inline-block; padding: 0.28rem 0.65rem; border-radius: 3px;
@@ -180,6 +274,7 @@ def render_unified_site(meta: dict, teams: list[dict]) -> str:
     }}
     .reasons {{ margin: 0.35rem 0 0.55rem; padding-left: 1.1rem; color: var(--muted); font-size: 0.8rem; }}
     .two-col {{ display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.85rem; }}
+    .filter-hint {{ font-size: 0.8rem; color: var(--muted); margin: 0.35rem 0 0.65rem; }}
     @media (max-width: 860px) {{
       .two-col {{ grid-template-columns: 1fr; }}
       .slide {{ padding: 1rem; }}
@@ -195,7 +290,8 @@ def render_unified_site(meta: dict, teams: list[dict]) -> str:
 <body>
 <header class="topbar">
   <a class="brand" href="#top">VIRTU · PlanFact</a>
-  <span class="meta">Превышения План/Факт · Производство · {esc(_period_span(periods))}</span>
+  <span class="meta">Превышения · Производство · {esc(_period_span(periods))} · последний срез {esc(last_period)}</span>
+  <input id="teamFilter" type="search" placeholder="Фильтр команд…" autocomplete="off" />
 </header>
 <div class="deck" id="top">
 
@@ -206,11 +302,13 @@ def render_unified_site(meta: dict, teams: list[dict]) -> str:
       <span class="lozenge">Active</span>
     </p>
     <div class="kpi-grid" style="text-align:left;max-width:960px;margin:1.25rem 0 0">
-      <div class="kpi red"><div class="kpi-value">+{_num(total_hours)}</div><div class="kpi-label">суммарное превышение, ч</div></div>
-      <div class="kpi amber"><div class="kpi-value">{total_tasks}</div><div class="kpi-label">строк задач с превышением</div></div>
-      <div class="kpi"><div class="kpi-value">{total_cases}</div><div class="kpi-label">случаев (ФИО × период)</div></div>
+      <div class="kpi red"><div class="kpi-value">+{_num(total_hours)}</div><div class="kpi-label">сумма за все периоды, ч</div></div>
+      <div class="kpi amber"><div class="kpi-value">+{_num(portfolio_last)}</div><div class="kpi-label">последний срез {esc(last_period)}, ч</div></div>
+      <div class="kpi"><div class="kpi-value">{_delta_badge(portfolio_delta)}</div><div class="kpi-label">Δ к {esc(prev_period or "—")}</div></div>
       <div class="kpi green"><div class="kpi-value">{teams_with_excess}/{len(teams)}</div><div class="kpi-label">команд с превышением</div></div>
     </div>
+    <p class="filter-hint">Всего строк задач с превышением: <strong>{total_tasks}</strong> · случаев ФИО×период: <strong>{total_cases}</strong></p>
+    {movers_html}
   </section>
 
   <section class="slide" id="overview">
@@ -218,22 +316,25 @@ def render_unified_site(meta: dict, teams: list[dict]) -> str:
       <div>
         <p class="slide-num">Слайд 1</p>
         <h2>Сводка по командам</h2>
-        <p class="subtitle">Клик по названию — переход к слайду команды</p>
+        <p class="subtitle">Сумма за все периоды + последний срез и Δ. Клик по названию — к слайду команды</p>
       </div>
     </div>
     <div class="sticky-nav"><div class="nav-bar">{team_nav}</div></div>
     <div class="table-scroll">
-      <table>
+      <table id="overviewTable">
         <thead>
-          <tr><th>Команда</th><th>Людей</th><th>Случаев</th><th>Строк задач</th><th>+ч</th><th>Лидер по +ч</th></tr>
+          <tr>
+            <th>Команда</th><th>Людей</th><th>Случаев</th><th>Строк</th>
+            <th>Σ +ч</th><th class="latest">Срез +ч</th><th class="latest">Δ среза</th><th>Лидер</th>
+          </tr>
         </thead>
         <tbody>
-          {''.join(overview_rows) if overview_rows else "<tr><td colspan='6'>Нет данных</td></tr>"}
+          {''.join(overview_rows) if overview_rows else "<tr><td colspan='8'>Нет данных</td></tr>"}
         </tbody>
       </table>
     </div>
     <div class="chart-box">
-      <div class="chart-title">Сравнение команд: часы превышения</div>
+      <div class="chart-title">Сравнение: сумма часов / последний срез</div>
       <div class="chart-wrap"><canvas id="teamsCompareChart"></canvas></div>
     </div>
   </section>
@@ -265,16 +366,17 @@ def render_unified_site(meta: dict, teams: list[dict]) -> str:
 </div>
 
 <script>
-  if (typeof Chart === 'undefined') {
-    document.querySelectorAll('.chart-wrap').forEach((el) => {
-      el.innerHTML = '<p class="muted" style="padding:1rem 0">График не загрузился (Chart.js). Обновите страницу или проверьте, что открыт сайт с папкой <code>assets/</code>.</p>';
-    });
-  } else {
+  if (typeof Chart === 'undefined') {{
+    document.querySelectorAll('.chart-wrap').forEach((el) => {{
+      el.innerHTML = '<p class="muted" style="padding:1rem 0">График не загрузился (Chart.js). Обновите страницу или проверьте папку <code>assets/</code>.</p>';
+    }});
+  }} else {{
   Chart.defaults.color = '#6b778c';
   Chart.defaults.borderColor = '#dfe1e6';
   const teamNames = {json.dumps(chart_teams, ensure_ascii=False)};
   const teamHours = {json.dumps(chart_hours)};
   const teamTasks = {json.dumps(chart_tasks)};
+  const teamLast = {json.dumps(chart_last)};
   const teamCharts = {json.dumps(team_charts, ensure_ascii=False)};
 
   new Chart(document.getElementById('teamsCompareChart'), {{
@@ -283,20 +385,20 @@ def render_unified_site(meta: dict, teams: list[dict]) -> str:
       labels: teamNames,
       datasets: [
         {{
-          label: 'Часы превышения',
+          label: 'Σ часы (все периоды)',
           data: teamHours,
-          backgroundColor: 'rgba(222, 53, 11, 0.72)',
+          backgroundColor: 'rgba(222, 53, 11, 0.55)',
           borderColor: '#de350b',
           borderWidth: 1,
           yAxisID: 'yH'
         }},
         {{
-          label: 'Строк задач',
-          data: teamTasks,
-          backgroundColor: 'rgba(0, 82, 204, 0.55)',
+          label: 'Последний срез, ч',
+          data: teamLast,
+          backgroundColor: 'rgba(0, 82, 204, 0.65)',
           borderColor: '#0052cc',
           borderWidth: 1,
-          yAxisID: 'yT'
+          yAxisID: 'yH'
         }}
       ]
     }},
@@ -307,8 +409,7 @@ def render_unified_site(meta: dict, teams: list[dict]) -> str:
       plugins: {{ legend: {{ position: 'top' }} }},
       scales: {{
         x: {{ ticks: {{ maxRotation: 45, minRotation: 30 }} }},
-        yH: {{ type: 'linear', position: 'left', beginAtZero: true, title: {{ display: true, text: 'Часы' }} }},
-        yT: {{ type: 'linear', position: 'right', beginAtZero: true, grid: {{ drawOnChartArea: false }}, title: {{ display: true, text: 'Задачи' }} }}
+        yH: {{ type: 'linear', position: 'left', beginAtZero: true, title: {{ display: true, text: 'Часы' }} }}
       }}
     }}
   }});
@@ -317,6 +418,9 @@ def render_unified_site(meta: dict, teams: list[dict]) -> str:
     const c = teamCharts[slug];
     const el = document.getElementById('chart-' + slug);
     if (!el || !c || !c.labels || !c.labels.length) return;
+    const n = c.labels.length;
+    const taskColors = c.tasks.map((_, i) => i === n - 1 ? 'rgba(0, 82, 204, 0.95)' : 'rgba(0, 82, 204, 0.45)');
+    const hourColors = c.hours.map((_, i) => i === n - 1 ? 'rgba(255, 139, 0, 0.95)' : 'rgba(255, 139, 0, 0.45)');
     new Chart(el, {{
       type: 'bar',
       data: {{
@@ -325,7 +429,7 @@ def render_unified_site(meta: dict, teams: list[dict]) -> str:
           {{
             label: 'Задач',
             data: c.tasks,
-            backgroundColor: 'rgba(0, 82, 204, 0.65)',
+            backgroundColor: taskColors,
             borderColor: '#0052cc',
             borderWidth: 1,
             yAxisID: 'yTasks'
@@ -333,7 +437,7 @@ def render_unified_site(meta: dict, teams: list[dict]) -> str:
           {{
             label: 'Часы',
             data: c.hours,
-            backgroundColor: 'rgba(255, 139, 0, 0.7)',
+            backgroundColor: hourColors,
             borderColor: '#ff8b00',
             borderWidth: 1,
             yAxisID: 'yHours'
@@ -364,18 +468,80 @@ def render_unified_site(meta: dict, teams: list[dict]) -> str:
     }});
   }});
   }}
+
+  const filterInput = document.getElementById('teamFilter');
+  if (filterInput) {{
+    filterInput.addEventListener('input', () => {{
+      const q = filterInput.value.trim().toLowerCase();
+      document.querySelectorAll('[data-team-row]').forEach((tr) => {{
+        const name = tr.getAttribute('data-team-row') || '';
+        tr.style.display = !q || name.includes(q) ? '' : 'none';
+      }});
+      document.querySelectorAll('.slide[id^="team-"]').forEach((slide) => {{
+        const title = (slide.querySelector('h2')?.textContent || '').toLowerCase();
+        slide.classList.toggle('is-hidden', !!(q && !title.includes(q)));
+      }});
+      document.querySelectorAll('.nav-chip').forEach((chip) => {{
+        const name = (chip.textContent || '').toLowerCase();
+        chip.style.display = !q || name.includes(q) ? '' : 'none';
+      }});
+    }});
+  }}
 </script>
 </body>
 </html>
 """
 
 
+def _render_people_table(team: dict) -> str:
+    periods = team.get("periods") or []
+    visible = periods[-PEOPLE_PERIODS_VISIBLE:] if len(periods) > PEOPLE_PERIODS_VISIBLE else periods
+    start_idx = len(periods) - len(visible)
+    note = ""
+    if len(periods) > len(visible):
+        note = (
+            f"<p class='filter-hint'>Показаны последние {len(visible)} из {len(periods)} периодов "
+            f"(с {esc(visible[0])}). Полная динамика — на графике выше.</p>"
+        )
+
+    period_th = []
+    for i, p in enumerate(visible):
+        cls = " class='latest'" if i == len(visible) - 1 else ""
+        period_th.append(f"<th{cls}>{esc(p)}</th>")
+
+    people_rows = []
+    for person in team.get("people_trend") or []:
+        cells = [f"<td class='name'>{esc(person['name'])}</td>"]
+        all_cells = person.get("cells") or []
+        slice_cells = all_cells[start_idx:]
+        for cell in slice_cells:
+            if cell is None:
+                cells.append("<td class='empty'>—</td>")
+                continue
+            cls = "bad" if cell["has_exceed"] else "ok"
+            cells.append(
+                f"<td class='{cls}'><div class='ratio'>{cell['ratio']:.2f}</div>"
+                f"<div class='muted'>{_num(cell['plan'])} → {_num(cell['fact'])}</div>"
+                f"<div class='delta'>+{_num(cell['excess'])} ч</div></td>"
+            )
+        people_rows.append("<tr>" + "".join(cells) + "</tr>")
+
+    return f"""
+    <p class="section-label blue">План → факт по сотрудникам</p>
+    {note}
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>ФИО</th>{''.join(period_th)}</tr></thead>
+        <tbody>{''.join(people_rows) if people_rows else "<tr><td colspan='99'>Нет данных</td></tr>"}</tbody>
+      </table>
+    </div>
+    """
+
+
 def _render_team_slide(slide_num: int, team: dict) -> str:
     kpi = team["kpi"]
     slug = esc(team["slug"])
     name = esc(team["name"])
-    periods = team.get("periods") or []
-    period_th = "".join(f"<th>{esc(p)}</th>" for p in periods)
 
     fio_rows = []
     for row in team.get("fio_totals") or []:
@@ -399,21 +565,6 @@ def _render_team_slide(slide_num: int, team: dict) -> str:
             f"<td class='bad'><strong>+{_num(grand.get('hours', 0))}</strong></td>"
             "</tr>"
         )
-
-    people_rows = []
-    for person in team.get("people_trend") or []:
-        cells = [f"<td class='name'>{esc(person['name'])}</td>"]
-        for cell in person.get("cells") or []:
-            if cell is None:
-                cells.append("<td class='empty'>—</td>")
-                continue
-            cls = "bad" if cell["has_exceed"] else "ok"
-            cells.append(
-                f"<td class='{cls}'><div class='ratio'>{cell['ratio']:.2f}</div>"
-                f"<div class='muted'>{_num(cell['plan'])} → {_num(cell['fact'])}</div>"
-                f"<div class='delta'>+{_num(cell['excess'])} ч</div></td>"
-            )
-        people_rows.append("<tr>" + "".join(cells) + "</tr>")
 
     viol_rows = []
     for row in team.get("violations") or []:
@@ -468,10 +619,9 @@ def _render_team_slide(slide_num: int, team: dict) -> str:
     insight_html = ""
     if insight:
         delta = insight.get("hours_delta")
-        delta_txt = "н/д" if delta is None else f"{delta:+.1f} ч"
         insight_html = (
             f"<p class='insight'>Последний срез <strong>{esc(insight.get('last_period') or '—')}</strong>: "
-            f"+{_num(insight.get('last_hours', 0))} ч · к прошлому: <strong>{esc(delta_txt)}</strong>. "
+            f"+{_num(insight.get('last_hours', 0))} ч · к прошлому: {_delta_badge(delta)}. "
             f"Лидер: <strong>{esc(insight.get('top_fio') or '—')}</strong> "
             f"(+{_num(insight.get('top_hours', 0))} ч). "
             f"Концентрация топ-2: <strong>{_num(insight.get('concentration', 0), 0)}%</strong>.</p>"
@@ -489,24 +639,26 @@ def _render_team_slide(slide_num: int, team: dict) -> str:
         </div>
         """
 
+    last_h, delta = _team_last_hours(team)
+
     return f"""
-  <section class="slide" id="team-{slug}">
+  <section class="slide" id="team-{slug}" data-team-name="{esc(name).lower()}">
     <div class="slide-header">
       <div>
         <p class="slide-num">Слайд {slide_num}</p>
         <h2>{name}</h2>
-        <p class="subtitle">{kpi['people']} чел. в roster · категория «Производство»</p>
+        <p class="subtitle">{kpi['people']} чел. в roster · категория «Производство» · срез {_delta_badge(delta)}</p>
       </div>
     </div>
     <div class="kpi-grid">
-      <div class="kpi red"><div class="kpi-value">+{_num(kpi['hours'])}</div><div class="kpi-label">сумма превышения, ч</div></div>
-      <div class="kpi amber"><div class="kpi-value">{kpi['tasks']}</div><div class="kpi-label">строк задач</div></div>
-      <div class="kpi"><div class="kpi-value">{kpi['cases']}</div><div class="kpi-label">случаев ФИО×период</div></div>
+      <div class="kpi red"><div class="kpi-value">+{_num(kpi['hours'])}</div><div class="kpi-label">Σ превышение, ч</div></div>
+      <div class="kpi amber"><div class="kpi-value">+{_num(last_h)}</div><div class="kpi-label">последний срез, ч</div></div>
+      <div class="kpi"><div class="kpi-value">{kpi['tasks']}</div><div class="kpi-label">строк задач</div></div>
       <div class="kpi green"><div class="kpi-value">{kpi['unique_keys']}</div><div class="kpi-label">уник. задач Jira</div></div>
     </div>
     {insight_html}
     <div class="chart-box">
-      <div class="chart-title">Динамика по периодам</div>
+      <div class="chart-title">Динамика по периодам (последний столбец выделен)</div>
       <div class="chart-wrap sm"><canvas id="chart-{slug}"></canvas></div>
     </div>
     <p class="section-label">Итого по ФИО</p>
@@ -516,13 +668,7 @@ def _render_team_slide(slide_num: int, team: dict) -> str:
         <tbody>{''.join(fio_rows) if fio_rows else "<tr><td colspan='5'>Нет превышений</td></tr>"}</tbody>
       </table>
     </div>
-    <p class="section-label blue">План → факт по сотрудникам</p>
-    <div class="table-scroll">
-      <table>
-        <thead><tr><th>ФИО</th>{period_th}</tr></thead>
-        <tbody>{''.join(people_rows) if people_rows else "<tr><td colspan='99'>Нет данных</td></tr>"}</tbody>
-      </table>
-    </div>
+    {_render_people_table(team)}
     {viol_section}
     <details class="tasks">
       <summary>Детализация задач с превышением ({kpi['tasks']})</summary>
@@ -534,6 +680,18 @@ def _render_team_slide(slide_num: int, team: dict) -> str:
 
 def render_planfact_html(ctx: dict) -> str:
     """Backward-compatible single-team page via unified renderer."""
+    if ctx.get("team_payload"):
+        meta = {
+            "periods": ctx.get("periods") or [],
+            "generated": datetime.now().strftime("%d.%m.%Y %H:%M"),
+            "source_count": len(ctx.get("periods") or []),
+            "rules": [],
+            "reestimate_steps": [],
+            "rules_title": ctx.get("rules_title") or "",
+            "reestimate_title": ctx.get("reestimate_title") or "",
+            "reestimate_example": ctx.get("reestimate_example") or "",
+        }
+        return render_unified_site(meta, [ctx["team_payload"]])
     team = {
         "slug": "team",
         "name": ctx.get("team_name") or "Команда",
@@ -569,7 +727,4 @@ def render_planfact_html(ctx: dict) -> str:
         "reestimate_title": ctx.get("reestimate_title") or "",
         "reestimate_example": ctx.get("reestimate_example") or "",
     }
-    # Prefer full unified payload if provided
-    if ctx.get("team_payload"):
-        return render_unified_site(meta, [ctx["team_payload"]])
     return render_unified_site(meta, [team])

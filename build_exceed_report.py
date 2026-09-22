@@ -835,10 +835,25 @@ def column_legend_html(items: list[tuple[str, str]], intro: str = "") -> str:
 
 
 def slugify_team(name: str) -> str:
+    """ASCII-safe slug for HTML ids / Chart.js lookups."""
+    trans = {
+        "а": "a", "б": "b", "в": "v", "г": "g", "д": "d", "е": "e", "ё": "e",
+        "ж": "zh", "з": "z", "и": "i", "й": "y", "к": "k", "л": "l", "м": "m",
+        "н": "n", "о": "o", "п": "p", "р": "r", "с": "s", "т": "t", "у": "u",
+        "ф": "f", "х": "h", "ц": "ts", "ч": "ch", "ш": "sh", "щ": "sch",
+        "ъ": "", "ы": "y", "ь": "", "э": "e", "ю": "yu", "я": "ya",
+    }
     text = (name or "").strip().lower().replace("ё", "е")
-    text = re.sub(r"[^a-z0-9а-я]+", "-", text, flags=re.IGNORECASE)
-    text = re.sub(r"-+", "-", text).strip("-")
-    return text or "team"
+    out = []
+    for ch in text:
+        if ch in trans:
+            out.append(trans[ch])
+        elif ("a" <= ch <= "z") or ("0" <= ch <= "9"):
+            out.append(ch)
+        else:
+            out.append("-")
+    slug = re.sub(r"-+", "-", "".join(out)).strip("-")
+    return slug or "team"
 
 
 def build_team_payload(
